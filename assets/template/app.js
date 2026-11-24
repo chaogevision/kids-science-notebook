@@ -439,6 +439,9 @@
     termRE.lastIndex = 0;
     let m;
     while ((m = termRE.exec(text)) !== null) {
+      const prevCh = m.index > 0 ? text[m.index - 1] : "";
+      const nextCh = m.index + m[0].length < text.length ? text[m.index + m[0].length] : "";
+      if (prevCh === "-" || nextCh === "-") continue;
       if (m.index > last) out += wrapWords(text.slice(last, m.index), state, false);
       const id = surfaceMap[m[0].toLowerCase()];
       out += id
