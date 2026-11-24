@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title id="docTitle">科学侦探手账 · Science Detective</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-font="md">
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <button class="brand" type="button" data-page="warmup" aria-label="回到手账首页">
+      <img class="brand-logo" src="assets/ui/logo_detective.svg" alt="" width="40" height="40">
+      <span class="brand-text">
+        <strong id="brandCn">科学侦探手账</strong>
+        <small id="brandEn">Science Detective</small>
+      </span>
+    </button>
+
+    <nav class="notebook-tabs" aria-label="学习手账页签">
+      <button class="nb-tab tab-yellow active" data-page="warmup" type="button">
+        <span class="tab-num">①</span>
+        <span class="tab-label">读前故事</span>
+        <span class="tab-check hidden" id="check-warmup" aria-hidden="true">✓</span>
+      </button>
+      <button class="nb-tab tab-blue" data-page="scenes" type="button">
+        <span class="tab-num">②</span>
+        <span class="tab-label">漫画找词</span>
+        <span class="tab-check hidden" id="check-scenes" aria-hidden="true">✓</span>
+      </button>
+      <button class="nb-tab tab-green" data-page="reader" type="button">
+        <span class="tab-num">③</span>
+        <span class="tab-label">原版破案</span>
+        <span class="tab-check hidden" id="check-reader" aria-hidden="true">✓</span>
+      </button>
+    </nav>
+
+    <div class="top-tools">
+      <div class="font-control" role="group" aria-label="阅读字号">
+        <span class="tool-label">字号</span>
+        <button class="tool-pill active" data-font="md" type="button">中</button>
+        <button class="tool-pill" data-font="lg" type="button">大</button>
+      </div>
+
+      <div class="speed-control" role="group" aria-label="朗读语速">
+        <button class="speed-btn" data-speed="0.8" type="button" title="0.8x 慢速">慢</button>
+        <button class="speed-btn active" data-speed="0.9" type="button" title="0.9x 适中">适中</button>
+        <button class="speed-btn" data-speed="1.2" type="button" title="1.2x 较快">快</button>
+      </div>
+
+      <button class="notebook-btn" id="notebookBtn" type="button" aria-label="打开我的生词夹">
+        <img src="assets/ui/notebook_icon.svg" alt="" width="24" height="24">
+        <span class="nb-btn-label">我的生词夹</span>
+        <span class="notebook-count" id="notebookCount">0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="desk-main">
+  <!-- ============ PAGE 1: 读前故事 (Hero Spread + Warm-up Cards) ============ -->
+  <section class="page-panel active" id="page-warmup" aria-labelledby="heroTitle">
+    <div class="hero-spread">
+      <span class="washi-tape tape-tl" aria-hidden="true"></span>
+      <span class="washi-tape tape-tr" aria-hidden="true"></span>
+      <span class="washi-tape tape-bl" aria-hidden="true"></span>
+
+      <div class="hero-left">
+        <img class="doodle-planet" src="assets/ui/doodle_planet.svg" alt="" aria-hidden="true">
+        <div class="eyebrow" id="heroEyebrow">SCIENCE JOURNAL FOR KIDS</div>
+        <h1 id="heroTitle">科学世界里，<br>藏着什么<span class="hl-underline">未解之谜</span>？</h1>
+        <p class="hero-sub" id="heroSub">跟随科学侦探手账，通过双语绘本与趣味实验，一起读懂原版英文科学论文！</p>
+
+        <div class="stamp-row">
+          <div class="stamp-badge stamp-coral">
+            <img src="assets/ui/stamp_book.svg" alt="" width="34" height="34">
+            <span>原版绘本精读</span>
+          </div>
+          <div class="stamp-badge stamp-blue">
+            <img src="assets/ui/stamp_audio.svg" alt="" width="34" height="34">
+            <span>语音点读</span>
+          </div>
+          <div class="stamp-badge stamp-yellow">
+            <img src="assets/ui/stamp_badge.svg" alt="" width="34" height="34">
+            <span>集章闯关</span>
+          </div>
+        </div>
+
+        <button class="hero-cta" id="openJournalBtn" type="button">翻开侦探手账 <span aria-hidden="true">→</span></button>
+      </div>
+
+      <div class="hero-right">
+        <div class="hero-frame">
+          <img id="heroCoverImg" src="assets/ui/hero_cover.png" alt="科普绘本手账封面水彩插画">
+          <button class="nasa-peek-btn hidden" id="heroPeekBtn" type="button" title="查看原版论文配图">🔭 原版配图</button>
+        </div>
+        <div class="bennu-sticker" id="heroSticker">科学侦探档案</div>
+      </div>
+    </div>
+
+    <section class="warmup-section" id="warmup">
+      <div class="storybook-head">
+        <div>
+          <span class="section-kicker">PAGE 01 · WARM-UP STORY</span>
+          <h2>读前故事卡片 <span class="h2-en">Warm-up Briefing</span></h2>
+          <p>先用简单的英文故事听懂大意。黄色便签折角贴着中文提示，卡住了再掀开看。</p>
+        </div>
+      </div>
+
+      <div class="warmup-grid" id="warmupGrid"></div>
+
+      <div class="tip-strip">
+        <img class="tip-svg" src="assets/ui/icon_idea.svg" alt="" width="22" height="22">
+        <span>每个英文单词都可以<strong>直接点读发声</strong>！点击黄色荧光词，既能听发音，还能弹出便利贴看比喻释义。</span>
+      </div>
+
+      <div class="page-turn-bar">
+        <span class="turn-hint">热身故事听懂了吗？翻到下一页，去漫画里寻宝找词吧！</span>
+        <button class="turn-btn turn-blue" data-page="scenes" type="button">翻到第 2 页：漫画找词 <span aria-hidden="true">→</span></button>
+      </div>
+    </section>
+  </section>
+
+  <!-- ============ PAGE 2: 漫画找词 (Scene Word Cards) ============ -->
+  <section class="page-panel" id="page-scenes" aria-labelledby="scenesTitle">
+    <div class="storybook-head scenes-head">
+      <div>
+        <span class="section-kicker">PAGE 02 · SCENE WORD CARDS</span>
+        <h2 id="scenesTitle">漫画找词 <span class="h2-en">Scene Word Cards</span></h2>
+        <p>同一组科学词藏在同一幅漫画里。点击画里的气泡听发音、点亮星星，集齐 <span id="vocabGoalHeader">10</span> 颗星解锁原版论文！</p>
+      </div>
+      <div class="mastery-card">
+        <div class="meter-label">已点亮 <strong id="masteredCount">0</strong> / <span id="vocabTotalCount">10</span> ⭐</div>
+        <div class="meter-track"><div class="meter-fill" id="masteredFill"></div></div>
+      </div>
+    </div>
+
+    <div class="scene-grid" id="sceneGrid"></div>
+
+    <div class="gate" id="gate">
+      <div class="gate-locked" id="gateLocked">
+        <span class="gate-badge">🔒 再点亮 <strong id="remainingCount">10</strong> 颗星，解锁第 3 页原版破案</span>
+        <button class="text-btn" id="skipWords" type="button">我已认识这些词，直接去破案 →</button>
+      </div>
+      <button class="gate-cta hidden" id="gateCta" type="button">🎉 词汇全部点亮！翻开第 3 页：原版破案 →</button>
+    </div>
+  </section>
+
+  <!-- ============ PAGE 3: 原版破案 (Open Two-Page Spiral Notebook) ============ -->
+  <section class="page-panel" id="page-reader" aria-labelledby="readerTitle">
+    <div class="notebook-cover">
+      <div class="notebook-spread">
+        <!-- LEFT PAGE: Original Paper -->
+        <div class="nb-page nb-page-left">
+          <div class="page-header">
+            <div class="page-title-row">
+              <span class="page-icon" aria-hidden="true">📖</span>
+              <div>
+                <h2 id="readerTitle">原版科学论文 · Original Paper</h2>
+                <span class="page-sub">原版英文 · 点击任意单词点读 · 按需展开精译</span>
+              </div>
+            </div>
+            <div class="page-head-tools">
+              <button class="mini-btn" id="expandAll" type="button">全部展开</button>
+              <button class="mini-btn" id="collapseAll" type="button">全部收起</button>
+            </div>
+          </div>
+
+          <div class="section-pills" id="sectionPills" role="navigation" aria-label="论文章节快速跳转"></div>
+
+          <div class="reader-scroll" id="paperSections"></div>
+        </div>
+
+        <!-- CENTER SPIRAL SPINE -->
+        <div class="notebook-spine" aria-hidden="true">
+          <div class="spine-rings" id="spineRings"></div>
+        </div>
+
+        <!-- RIGHT PAGE: Detective Stamp Mission Board -->
+        <aside class="nb-page nb-page-right" aria-label="侦探集章任务板">
+          <div class="stamp-board-head">
+            <div class="page-title-row">
+              <span class="page-icon" aria-hidden="true">🔍</span>
+              <div>
+                <h2>侦探集章任务板</h2>
+                <span class="page-sub">边读边破案 · 选错也会带你回原文找线索</span>
+              </div>
+            </div>
+            <div class="stamp-counter">已收集 <strong id="starCount">0</strong> / <span id="starTotal">8</span> 枚侦探印章</div>
+          </div>
+
+          <div class="star-stamps-bar" id="starStampsBar" aria-label="侦探印章收集进度"></div>
+
+          <div class="mission-folder">
+            <div class="mission-tabs" role="tablist" id="missionTabs">
+              <button class="mission-tab mtab-green active" data-mission="m1" type="button">① 步骤拼图</button>
+              <button class="mission-tab mtab-blue" data-mission="m2" type="button">② 图表侦探</button>
+              <button class="mission-tab mtab-yellow" data-mission="m3" type="button">③ 真假鉴真</button>
+              <button class="mission-tab mtab-coral" data-mission="m4" type="button">④ 费曼讲给TA听</button>
+            </div>
+
+            <div class="mission-card-sheet">
+              <img class="sheet-clip" src="assets/ui/paperclip.svg" alt="" aria-hidden="true">
+
+              <div class="mission-pane active" id="pane-m1">
+                <div class="mission-intro">
+                  <strong>① 科研步骤拼图</strong>
+                  <p>科学家在论文中完成了关键实验步骤。按先后顺序点选，还原真实流程。</p>
+                </div>
+                <div class="order-slots" id="orderSlots"></div>
+                <div class="order-options" id="orderOptions"></div>
+                <div class="mission-feedback" id="m1Feedback"></div>
+                <button class="reset-btn" data-reset="m1" type="button">↺ 重新排序</button>
+              </div>
+
+              <div class="mission-pane" id="pane-m2">
+                <div class="mission-intro">
+                  <strong>② 图表侦探社</strong>
+                  <p>仔细观察论文里的真实科研 Figure，找细节、看变化。</p>
+                </div>
+                <div id="figQuizList"></div>
+              </div>
+
+              <div class="mission-pane" id="pane-m3">
+                <div class="mission-intro">
+                  <strong>③ 真假结论鉴真</strong>
+                  <p>陈述里藏着常见误解。判断 True / False，选错就点线索条回原文查证。</p>
+                </div>
+                <div id="tfList"></div>
+              </div>
+
+              <div class="mission-pane" id="pane-m4">
+                <div class="mission-intro">
+                  <strong>④ 费曼讲给 TA 听</strong>
+                  <p>合上或遮住屏幕，用自己的话讲给爸爸妈妈或小伙伴听！讲完打勾领勋章。</p>
+                </div>
+                <div id="feynmanList"></div>
+                <button class="badge-btn" id="badgeBtn" type="button">🏅 盖章生成科学侦探结业证书</button>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <p id="footerSource">原文来源：Science Journal For Kids</p>
+  <p id="footerNote">英文论文内容忠实于原 PDF；中文为辅助提示。</p>
+</footer>
+
+<!-- overlays -->
+<div class="term-pop hidden" id="termPop" role="dialog" aria-label="术语便利贴"></div>
+
+<div class="lightbox hidden" id="lightbox">
+  <div class="lightbox-inner">
+    <button class="lightbox-close" id="lightboxClose" type="button" aria-label="关闭">×</button>
+    <img id="lightboxImg" alt="放大查看论文配图">
+    <div class="lightbox-caption" id="lightboxCaption"></div>
+  </div>
+</div>
+
+<aside class="notebook hidden" id="notebook" aria-label="我的生词夹">
+  <div class="notebook-head">
+    <h3><img src="assets/ui/notebook_icon.svg" alt="" width="24" height="24"> 我的生词夹</h3>
+    <button class="nb-close" id="nbClose" type="button" aria-label="关闭">×</button>
+  </div>
+  <div class="notebook-body" id="notebookBody"></div>
+  <div class="notebook-foot"><button class="text-btn" id="clearNotebook" type="button">清空生词夹</button></div>
+</aside>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<div class="badge-overlay hidden" id="badgeOverlay">
+  <div class="badge-card" id="badgeCard">
+    <span class="washi-tape tape-tl" aria-hidden="true"></span>
+    <span class="washi-tape tape-tr" aria-hidden="true"></span>
+    <div class="badge-top">
+      <img src="assets/ui/stamp_badge.svg" alt="" width="62" height="62">
+      <span class="badge-eyebrow">SCIENCE JOURNAL FOR KIDS · SCIENCE DETECTIVE</span>
+    </div>
+    <h2><span id="certHeading">科学小侦探</span><br><em>结业手账证书</em></h2>
+    <p class="badge-name" id="certName">我已完成本篇原版科学论文的绘本阅读与破案挑战！</p>
+    <div class="badge-stats">
+      <div><strong id="badgeWords">0</strong><span>点亮核心词</span></div>
+      <div><strong id="badgeStars">0/8</strong><span>侦探印章</span></div>
+      <div><strong id="badgeNb">0</strong><span>生词夹收录</span></div>
+    </div>
+    <div class="badge-signature">小侦探签名 Detective Signature: ______________________</div>
+    <div class="badge-actions">
+      <button class="badge-print" id="badgePrint" type="button">🖨 打印 / 保存为 PDF</button>
+      <button class="badge-close" id="badgeClose" type="button">返回手账</button>
+    </div>
+  </div>
+</div>
+
+<script src="data/lesson_data.js"></script>
+<script src="data/audio_timings.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
