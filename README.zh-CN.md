@@ -30,11 +30,13 @@
 - **Edge TTS 统一音色 + 逐词跟随高亮 + 全文任意词点读**：
   - 全部通过 **Edge TTS**（默认 `en-US-AriaNeural`，`-10%` 语速）合成整段朗读音频，并采集原生 `WordBoundary` 毫秒级时间轴。
   - 朗读到哪个单词，哪个单词实时高亮；点击正文任意普通英文词均可直接用同一音色点读发声；点击黄色荧光标记的核心词，同时弹出纯 SVG 图标的便利贴卡片并自动朗读。
-- **100% 纯离线交付**：数据打包为 `window.LESSON_DATA` 与 `window.AUDIO_TIMINGS`，无需安装后端或联网，双击 `index.html` 即可在浏览器或 iPad 上使用，并自动产出可分享的 `.zip` 离线包。
+- **面向桌面浏览器的离线交付**：将数据与音频元信息编译为本地脚本，完整解压后可尝试使用兼容桌面浏览器通过 `file://` 打开 `index.html`，并分享 `.zip` 包。生成阶段的依赖安装及 Edge TTS 需要联网；平板模拟并不代表已验证 iPadOS Safari。
 
 ---
 
-## 成品案例展示（实机截图）
+## 成品案例展示（项目截图）
+
+仓库中仅提供两套案例的截图，并未包含完整可运行的课程数据、图片及音频包。截图本身不构成跨平台或物理设备验收证据。
 
 ### 案例一 · 小行星科学手账（Space Detective）
 > 原文：*Science Journal For Kids (Nov 2026)* — *《What clues does an asteroid hold about life on Earth?》*
@@ -64,56 +66,80 @@
 
 ## 新用户使用指南
 
-### 1. 环境准备
+### 1. 环境准备与安装
 
-- **Python / `uv`**：安装 [`uv`](https://docs.astral.sh/uv/)（运行脚本时会自动按需拉取 `pymupdf` 与 `edge-tts`，不污染系统 Python）。
-- **Node.js + Playwright + Chrome** *(用于第 6 阶段全自动无头浏览器验收)*。
-- **生图能力** *(用于第 3 阶段生成水彩封面与 2 张无文字场景图)*：由 Agent 调用生图工具完成，或自行放入 `assets/ui/hero_cover.png` 与 `assets/scenes/scene_{1,2}.jpg`。
+生成工具链面向 macOS、Windows（PowerShell）与 Linux。请安装 [Git](https://git-scm.com/)、[`uv`](https://docs.astral.sh/uv/) 和 [Node.js](https://nodejs.org/) 20+（建议使用仍受支持的 LTS 版本）。孩子使用已生成的手账时无需安装 Python 或 Node.js。生成插画需要 Agent 生图工具或自行提供插画。
 
-### 2. 安装 Skill
+可将仓库克隆到任意有访问权限的目录。如需 Agent 自动发现 Skill，请按照该 Agent 当前的安装规范放入相应目录，不要求固定全局路径。以下所有命令均在包含 `SKILL.md` 的仓库根目录执行，同一套单行命令适用于 PowerShell、bash 和 zsh。
 
-将本仓库克隆到全局 Antigravity Skills 目录（或项目 `.agents/skills/`）：
-
-```bash
-git clone https://github.com/chaogevision/kids-science-notebook.git \
-  ~/.gemini/config/skills/kids-science-notebook
+```sh
+git clone https://github.com/chaogevision/kids-science-notebook.git
+cd kids-science-notebook
+uv python install 3.11
+npm install
+npx playwright install chromium
 ```
 
-### 3. 让 AI Agent 一键为你生成网页
+Playwright 安装在 Skill 本地，无需全局 npm 安装。Linux 如果缺少系统浏览器库，可执行 `npx playwright install --with-deps chromium`（可能需要管理员权限）。安装依赖、下载 Chromium、合成 Edge TTS 音频需要联网。
 
-1. 从 [*Science Journal For Kids*](https://www.sciencejournalforkids.org) 下载一篇感兴趣的科普文章 PDF。
-2. 把 PDF 上传或路径发给 Agent，直接说：
-   > **“用 `kids-science-notebook` 把这份 PDF 做成儿童科普互动网页。”**
-3. Agent 会自动按 6 个阶段完成文本与矢量图表提取 → 教研分级与中英拆解 → 定制水彩插画 → Edge TTS 全词音频合成 → 自动化验收与 `.zip` 离线包交付。
-
-### 4. 手动命令行分步调用（开发者模式）
+验收默认启动 Playwright 管理的 Chromium。如果希望使用已有且兼容的 Chromium/Chrome，可选设环境变量 `CHROMIUM_EXECUTABLE_PATH`，指向实际浏览器可执行文件而非目录。以下仅为示例，请替换为自己的路径：
 
 ```bash
-SKILL=~/.gemini/config/skills/kids-science-notebook
-
-# 阶段 1：抽取 PDF 全文、嵌入位图与高清整页渲染图
-uv run --with pymupdf python3 "$SKILL/scripts/extract_pdf.py" \
-  extract /path/to/article.pdf ./_pdf_extract
-
-# 可选：按归一化 [0..1] 坐标高清裁剪论文矢量图表
-uv run --with pymupdf python3 "$SKILL/scripts/extract_pdf.py" \
-  crop /path/to/article.pdf --page 2 --box 0.03 0.63 0.97 0.945 \
-  --out ./my-notebook/assets/figures/figure1.png
-
-# 阶段 2 & 3：初始化模板目录，按 references/lesson_schema.md 编写 data/lesson_data.json，
-# 并放入封面图 hero_cover.png 与两张场景图 scene_1.jpg、scene_2.jpg
-python3 "$SKILL/scripts/build_project.py" ./my-notebook --init-only
-
-# 阶段 4：编译 lesson_data.js 并校验所有图片资源存在
-python3 "$SKILL/scripts/build_project.py" ./my-notebook
-
-# 阶段 5：合成 Edge TTS 整段朗读、WordBoundary 词级时间轴及全部单词点读 MP3
-uv run --with edge-tts python3 "$SKILL/scripts/generate_audio.py" ./my-notebook
-
-# 阶段 6：运行无头 Chrome 全量离线验收，并打包可分发的 .zip
-node "$SKILL/scripts/verify_app.mjs" ./my-notebook
-python3 "$SKILL/scripts/build_project.py" ./my-notebook --zip ./my-notebook-offline.zip
+# macOS / Linux
+export CHROMIUM_EXECUTABLE_PATH="/actual/path/to/chromium"
 ```
+
+```powershell
+# Windows PowerShell
+$env:CHROMIUM_EXECUTABLE_PATH = 'C:\actual\path\to\chrome.exe'
+```
+
+取消该变量即可恢复默认浏览器（macOS/Linux：`unset CHROMIUM_EXECUTABLE_PATH`；PowerShell：`Remove-Item Env:CHROMIUM_EXECUTABLE_PATH`）。
+
+### 2. 让 AI Agent 生成互动手账
+
+从 [Science Journal For Kids](https://www.sciencejournalforkids.org) 下载感兴趣的 PDF，确保 Agent 有权访问本 Skill 和 PDF，再对它说：
+
+> 用 `kids-science-notebook` 把这份 PDF 做成儿童科普互动网页。
+
+Agent 应按 [SKILL.md](SKILL.md) 的六阶段工作流运行、修复验收失败项，再交付完整手账目录和 ZIP，同时说明实际 QA 结果与设备限制。生成阶段需要生图能力或自备插画，Edge TTS 合成需要联网。
+
+### 3. 手动命令行工作流（三种桌面系统通用）
+
+示例路径 `../article.pdf`、`../my-notebook` 和 `../_pdf_extract` 相对于 Skill 根目录。实际使用时请替换为自己的路径，保留引号以支持空格、中文路径。逐条执行命令，遇到非零退出码立即停止。PowerShell 检查 `$LASTEXITCODE`；bash/zsh 检查 `$?`。
+
+**阶段 1–3：** 提取 PDF、初始化模板，并按需裁剪原论文矢量图表（页码和归一化坐标按实际修改）。
+
+```sh
+uv run --no-project --python 3.11 --with pymupdf python scripts/extract_pdf.py extract "../article.pdf" "../_pdf_extract"
+uv run --no-project --python 3.11 python scripts/build_project.py "../my-notebook" --init-only
+uv run --no-project --python 3.11 --with pymupdf python scripts/extract_pdf.py crop "../article.pdf" --page 2 --box 0.03 0.63 0.97 0.945 --out "../my-notebook/assets/figures/figure1.png"
+```
+
+根据 [lesson_schema.md](references/lesson_schema.md) 编写 `../my-notebook/data/lesson_data.json`，放入封面、两幅场景图及所有引用的论文图表。继续之前须检查插画和词汇气泡坐标。JSON 中图片必须使用项目内相对路径、正斜杠、大小写精确匹配，并指向会被打包的非空文件。
+
+**阶段 4–6：** 编译并校验课程、生成音频、运行浏览器验收；只有验收退出码为 0 且截图人工复核通过后，才打包到项目目录外部。
+
+```sh
+uv run --no-project --python 3.11 python scripts/build_project.py "../my-notebook"
+uv run --no-project --python 3.11 --with edge-tts python scripts/generate_audio.py "../my-notebook"
+node scripts/verify_app.mjs "../my-notebook"
+uv run --no-project --python 3.11 python scripts/build_project.py "../my-notebook" --zip "../my-notebook-offline.zip"
+```
+
+缺失、无效或空图片会使构建以非零状态退出，失败不会产出新的 ZIP。此前存在的 ZIP 将保持不变，不要将旧包误作本次成果。图片能否解码以及音频实际播放由浏览器阶段检查；单独运行 ZIP 命令不等于完成端到端验收，不可跳过验收脚本。`qa-*.png` 截图不会打入 ZIP。
+
+构建器及验收器文件处理回归测试：在 Skill 根目录运行 `uv run --no-project --python 3.11 python -m unittest discover -s tests -v` 与 `node --test tests/test_verify_files.mjs`。
+
+## 设备兼容性与 iPad 真机验收
+
+- **macOS / Windows / Linux 桌面端：** 为预期构建目标。课程通过验收后，完整解压 ZIP，并用兼容桌面浏览器打开 `index.html`；不要单独移动 HTML。跨平台命令可用不等于已在每个系统和浏览器实测。
+- **平板布局模拟：** 验收脚本使用 1194 × 834 的 Chromium 触控视口，检查页面导航及资源加载，生成 `assets/qa-ipad.png` 和 `assets/qa-tablet-reader.png`。这是模拟平板截图，不是 iPadOS、Safari 或「文件」App 真机测试。
+- **物理 iPad：** 仓库尚无可证明真机支持的验收证据。「文件」App/快速查看可能仅预览 HTML，而不会完整访问同目录资源。不要承诺离线双击可用。如本地打开失败，可尝试将同一手账目录通过 HTTP(S) 提供给 Safari；这种方式需要与服务器连接，不等同于纯离线使用。
+
+同一局域网测试：在 Skill 根目录执行 `uv run --no-project --python 3.11 python -m http.server 8000 --bind 0.0.0.0 --directory "../my-notebook"`，在 iPad Safari 打开 `http://YOUR_COMPUTER_LAN_IP:8000/`（替换为电脑实际局域网 IP）。仅在可信网络测试，结束后关闭服务器。如果局域网无法访问，可使用经许可的静态 HTTP(S) 托管方式。
+
+**iPad 真机验收清单：** 记录机型、iPadOS 与浏览器版本、测试日期、课程和打开方式（本地解压目录或 HTTP(S)）。检查封面、三个页面、图片解码、触摸点词与进度、中文辅助/字号/语速、真实 MP3 播放和逐词高亮、词汇弹窗与生词夹、四项任务和证书、横竖屏布局。如果要声明完全离线支持，应关闭 Wi-Fi 和蜂窝网络后重新打开完整本地课程，逐项复测。记录通过/失败、截图和限制。HTTP(S) 打开成功不证明离线本地文件可用。
 
 ---
 
@@ -124,6 +150,8 @@ kids-science-notebook/
 ├── SKILL.md                      # 6 阶段端到端执行手册
 ├── README.md                     # 英文说明文档
 ├── README.zh-CN.md               # 简体中文说明文档
+├── package.json                  # 本地 Playwright 验收依赖
+├── tests/                        # 构建器回归测试
 ├── LICENSE                       # MIT 开源协议
 ├── references/
 │   └── lesson_schema.md          # lesson_data.json 数据规范与教研指南
@@ -131,8 +159,9 @@ kids-science-notebook/
 │   ├── extract_pdf.py            # PyMuPDF 文本、位图与矢量图裁剪工具
 │   ├── build_project.py          # 模板同步、lesson_data.js 编译与 .zip 打包
 │   ├── generate_audio.py         # Edge TTS 逐词时间轴与全词点读音频生成
-│   └── verify_app.mjs            # 无头 Chrome 离线全链路自动化验收脚本
-├── docs/screenshots/             # 两套成品案例实机截图
+│   ├── verify_files.mjs          # Local file checks / 本地文件校验
+│   └── verify_app.mjs            # 无头 Chromium 离线全链路自动化验收脚本
+├── docs/screenshots/             # 两套成品案例项目截图
 └── assets/template/              # 方案 B 通用网页模板 + 18 枚手账 SVG 图标
 ```
 

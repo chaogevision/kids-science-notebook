@@ -1,0 +1,9 @@
+{
+  "name": "kids-science-notebook",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local QA tooling for Kids Science Notebook",
+  "engines": { "node": ">=20" },
+  "scripts": { "verify": "node scripts/verify_app.mjs" },
+  "devDependencies": { "playwright": "1.57.0" }
+}
